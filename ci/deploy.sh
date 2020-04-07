@@ -34,6 +34,7 @@ export -f usage
   DESTRUCT="true"
   PRE_DEST="false"
   DEPLOY_WAIT="33"
+  AUTO_CI="false"
 
   while [ $# -gt 0 ] ; do
     case $1 in
@@ -45,6 +46,7 @@ export -f usage
       --destruct-pre-deploy) PRE_DEST="true" ;;
       -s | --skip-code-coverage) TEST_CODE="" ;;
       -q | --queue-deploy) DEPLOY_WAIT="0" ;;
+      --automatic) AUTO_CI="true" ;;
       -h | --help) usage
                    exit 0;;
       *) echo -e "${RED}*** ERROR: ${RESTORE}Invalid option: ${WHITE}$1${RESTORE}. See usage:"
@@ -66,6 +68,9 @@ export -f usage
 
 echo -e "\n${GREEN}*** ${WHITE}Deploy to Salesforce script v${VERSION}\n${GREEN}* ${WHITE}by vc@vaughancrole.com${RESTORE}\n"
 
+if [[ $AUTO_CI != "false" ]]; then
+  echo -e "* Running in CI Automatic mode.\n"
+fi
 echo "Event: $CI_EVENT_TYPE"
 echo "Branch: $CI_BRANCH"
 if [[ $CI_NEW_BRANCH != $CI_BRANCH ]]; then

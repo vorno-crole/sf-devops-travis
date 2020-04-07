@@ -1,6 +1,6 @@
 sudo: true
 os: trusty
-cache: false
+cache: true
 language: node_js
 node_js:
   - "8"
@@ -32,4 +32,4 @@ before_install:
 - npm link sf-packager
 - chmod +x ci/deploy.sh
 
-script: ci/deploy.sh
+script: ci/deploy.sh --automatic
