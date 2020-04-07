@@ -62,6 +62,22 @@ export -f usage
     read -p "Press Enter to continue."
   }
   export -f pause
+
+  authUrlKey()
+  {
+    ### Get url key and authenticate
+    CI_ORG_FILE="ci/pr-test-url.txt"
+    if [ ${URL_KEY} == "" ]; then
+      echo -e "Error: URL Key not set.\n"
+      exit 1;
+    fi
+    echo "${URL_KEY}" > ${CI_ORG_FILE}
+
+    sfdx force:auth:sfdxurl:store -f ${CI_ORG_FILE} -a ciorg
+    #sfdx force:org:display -u ciorg
+    rm ${CI_ORG_FILE}
+  }
+  export -f authUrlKey
 # end functions
 
 echo -e "\n${GREEN}*** ${WHITE}Deploy to Salesforce script v${VERSION}\n${GREEN}* ${WHITE}by vc@vaughancrole.com${RESTORE}\n"
@@ -105,12 +121,7 @@ if [[ $CI_EVENT_TYPE == 'pull_request' ]] && [[ $CI_BRANCH == 'develop' || $CI_B
   echo -e "${GREEN}*** ${WHITE}PR into $CI_BRANCH - running simulation test${RESTORE}\n"
 
   ### Get url key and authenticate
-  CI_ORG_FILE="ci/pr-test-url.txt"
-  echo "${URL_KEY}" > ${CI_ORG_FILE}
-
-  sfdx force:auth:sfdxurl:store -f ${CI_ORG_FILE} -a ciorg
-  #sfdx force:org:display -u ciorg
-  rm ${CI_ORG_FILE}
+  authUrlKey
 
   # Run Dynamic metadata rewrite on deploy
   #targets/dynamic-metadata.sh --set ${CI_BRANCH} # TODO fix
@@ -128,13 +139,7 @@ elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $CI_BRANCH == 'develop' || $CI_BRANCH 
   echo -e "${GREEN}*** ${WHITE}Push into $CI_BRANCH - running deploy${RESTORE}\n"
 
   ### Get url key and authenticate
-  CI_ORG_FILE="ci/pr-test-url.txt"
-  echo "${URL_KEY}" > ${CI_ORG_FILE}
-
-  sfdx force:auth:sfdxurl:store -f ${CI_ORG_FILE} -a ciorg
-  #sfdx force:org:display -u ciorg
-  rm ${CI_ORG_FILE}
-
+  authUrlKey
 
   # Run Dynamic metadata rewrite on deploy
   #targets/dynamic-metadata.sh --set ${CI_BRANCH} # TODO fix
