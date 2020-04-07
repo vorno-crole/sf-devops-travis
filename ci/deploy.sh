@@ -113,7 +113,7 @@ if [[ $AUTO_CI == "false" ]]; then
 fi
 
 
-if [[ $CI_EVENT_TYPE == 'pull_request' ]]
+if [[ $CI_EVENT_TYPE == 'pull_request' ]]; then
   # get url file and auth
   CI_ORG_FILE="ci/devops1-url.txt"
   if [[ ! -f ${CI_ORG_FILE} ]]; then
