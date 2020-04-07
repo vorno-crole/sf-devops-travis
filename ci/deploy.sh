@@ -8,12 +8,12 @@ SECONDS=0
   RED="\033[91;1m"
   RESTORE="\033[0m"
 
-  CI_EVENT_TYPE="push"
-  CI_BRANCH="$(git symbolic-ref --short -q HEAD 2>/dev/null)"
+  CI_EVENT_TYPE="$TRAVIS_EVENT_TYPE"
+  CI_BRANCH="${TRAVIS_BRANCH}"
   CI_NEW_BRANCH="${CI_BRANCH}"
   CI_CMP_BRANCH="${CI_BRANCH}^"
-  CI_PULL_REQUEST="false"
-  CI_PULL_REQUEST_BRANCH=""
+  CI_PULL_REQUEST="${TRAVIS_PULL_REQUEST}"
+  CI_PULL_REQUEST_BRANCH="${TRAVIS_PULL_REQUEST_BRANCH}"
 
   CI_URL_PATH="../keys" # TODO fix
 # end set up env vars
@@ -34,11 +34,6 @@ export -f usage
   DESTRUCT="true"
   PRE_DEST="false"
   DEPLOY_WAIT="33"
-
-  if [[ $# -eq 0 ]]; then
-    usage
-    exit 0
-  fi
 
   while [ $# -gt 0 ] ; do
     case $1 in
@@ -106,6 +101,12 @@ else
 fi
 
 echo ""
+
+
+if [[ $# -eq 0 ]]; then
+  usage
+  exit 0
+fi
 
 
 if [[ $CI_EVENT_TYPE == 'push' ]] && [[ $CI_BRANCH == 'develop' || $CI_BRANCH == 'validation' || $CI_BRANCH == 'release' || $CI_BRANCH == 'master' ]]; then
