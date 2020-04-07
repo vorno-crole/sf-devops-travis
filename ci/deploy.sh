@@ -115,14 +115,14 @@ fi
 
 if [[ $CI_EVENT_TYPE == 'pull_request' ]]; then
   # get url file and auth
-  CI_ORG_FILE="ci/devops1-url.txt"
-  if [[ ! -f ${CI_ORG_FILE} ]]; then
-    echo -e "Error: Test URL file not found.\n"
-    exit 1;
+  CI_ORG_FILE="ci/pr-test-url.txt"
+  if [[ -f ${CI_ORG_FILE} ]]; then
+    rm ${CI_ORG_FILE}
   fi
+  echo "${URL_KEY}" > ${CI_ORG_FILE}
 
   sfdx force:auth:sfdxurl:store -f ${CI_ORG_FILE} -a ciorg
-  sfdx force:org:display -u ciorg
+  #sfdx force:org:display -u ciorg
 
   # run sim deploy
   sfdx force:source:deploy --checkonly -l RunLocalTests -p force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
