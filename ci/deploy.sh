@@ -35,10 +35,10 @@ export -f usage
   PRE_DEST="false"
   DEPLOY_WAIT="33"
 
-  # if [[ $# -eq 0 ]]; then
-  #   usage
-  #   exit 0
-  # fi
+  if [[ $# -eq 0 ]]; then
+    usage
+    exit 0
+  fi
 
   while [ $# -gt 0 ] ; do
     case $1 in
