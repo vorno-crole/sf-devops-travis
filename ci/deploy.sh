@@ -8,14 +8,12 @@ SECONDS=0
   RED="\033[91;1m"
   RESTORE="\033[0m"
 
-  CI_EVENT_TYPE="$TRAVIS_EVENT_TYPE"
+  CI_EVENT_TYPE="${TRAVIS_EVENT_TYPE}"
   CI_BRANCH="${TRAVIS_BRANCH}"
   CI_NEW_BRANCH="${CI_BRANCH}"
   CI_CMP_BRANCH="${CI_BRANCH}^"
   CI_PULL_REQUEST="${TRAVIS_PULL_REQUEST}"
   CI_PULL_REQUEST_BRANCH="${TRAVIS_PULL_REQUEST_BRANCH}"
-
-  CI_URL_PATH="../keys" # TODO fix
 # end set up env vars
 
 usage()
@@ -27,7 +25,7 @@ usage()
 export -f usage
 
 # args
-  VERSION="1.0 b30"
+  VERSION="1.1 b31"
   REAL_DEPLOY="false"
   TEST_CODE="-l RunLocalTests"
   VALI_FLAG="-c"
@@ -76,16 +74,12 @@ echo "Branch: $CI_BRANCH"
 if [[ $CI_NEW_BRANCH != $CI_BRANCH ]]; then
   echo "New Branch: $CI_NEW_BRANCH"
 fi
-echo "Compare Branch: $CI_CMP_BRANCH"
 echo "Pull Request: $CI_PULL_REQUEST"
 if [[ $CI_PULL_REQUEST != "false" ]]; then
   echo "PR Branch: $CI_PULL_REQUEST_BRANCH"
   CI_CMP_BRANCH="${CI_PULL_REQUEST_BRANCH}"
 fi
-
-if [[ $TEST_CODE == "" ]]; then
-  echo "Skip Test Coverage"
-fi
+echo "Compare Branch: $CI_CMP_BRANCH"
 
 if [[ $DESTRUCT == "true" ]]; then
   echo "Destructive changes check enabled."
@@ -99,13 +93,6 @@ else
   echo "Destructive changes check disabled."
 fi
 
-if [[ $REAL_DEPLOY == 'true' ]]; then
-  echo -e "${GREEN}*** ${RED}Deploying for real ${GREEN}***"
-  VALI_FLAG=""
-else
-  echo "Simulation deployment."
-fi
-
 echo ""
 
 if [[ $AUTO_CI == "false" ]]; then
@@ -113,39 +100,40 @@ if [[ $AUTO_CI == "false" ]]; then
 fi
 
 
-if [[ $CI_EVENT_TYPE == 'pull_request' ]]; then
-  # get url file and auth
+if [[ $CI_EVENT_TYPE == 'pull_request' ]] && [[ $CI_BRANCH == 'develop' || $CI_BRANCH == 'validation' || $CI_BRANCH == 'release' || $CI_BRANCH == 'master' ]]; then
+
+  echo -e "${GREEN}*** ${WHITE}PR into $CI_BRANCH - running simulation test${RESTORE}\n"
+
+  ### Get url key and authenticate
   CI_ORG_FILE="ci/pr-test-url.txt"
-  if [[ -f ${CI_ORG_FILE} ]]; then
-    rm ${CI_ORG_FILE}
-  fi
   echo "${URL_KEY}" > ${CI_ORG_FILE}
 
   sfdx force:auth:sfdxurl:store -f ${CI_ORG_FILE} -a ciorg
   #sfdx force:org:display -u ciorg
+  rm ${CI_ORG_FILE}
 
-  # run sim deploy
-  sfdx force:source:deploy --checkonly -l RunLocalTests -p force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
+  # Run Dynamic metadata rewrite on deploy
+  #targets/dynamic-metadata.sh --set ${CI_BRANCH} # TODO fix
 
+  #####
+  # Run simulation deployment
+  #####
+  sfdx force:source:deploy --checkonly --testlevel=RunLocalTests --sourcepath=force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
+
+  # Restore dynamic metadata rewrite
+  #targets/dynamic-metadata.sh --restore # TODO fix
 
 elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $CI_BRANCH == 'develop' || $CI_BRANCH == 'validation' || $CI_BRANCH == 'release' || $CI_BRANCH == 'master' ]]; then
 
-  echo -e "${GREEN}*** ${WHITE}Push into $CI_BRANCH - running deploy\n"
-  echo -e "\n${GREEN}* ${WHITE}Authenticate org\n"
+  echo -e "${GREEN}*** ${WHITE}Push into $CI_BRANCH - running deploy${RESTORE}\n"
 
-  echo -e "* ${WHITE}Looking for deploy $CI_BRANCH url"
+  ### Get url key and authenticate
+  CI_ORG_FILE="ci/pr-test-url.txt"
+  echo "${URL_KEY}" > ${CI_ORG_FILE}
 
-  if [ -f $CI_URL_PATH/deploy-$CI_BRANCH-url.txt ]; then
-    echo -e "File $CI_URL_PATH/deploy-$CI_BRANCH-url.txt found.\n"
-  else
-    echo -e "\n${GREEN}*** ${WHITE}Error: File not found.\n"
-    exit 1;
-  fi
-
-  sfdx force:auth:sfdxurl:store -f $CI_URL_PATH/deploy-$CI_BRANCH-url.txt -a ciorg
+  sfdx force:auth:sfdxurl:store -f ${CI_ORG_FILE} -a ciorg
   #sfdx force:org:display -u ciorg
-
-  echo -e "${RESTORE}"
+  rm ${CI_ORG_FILE}
 
 
   # Run Dynamic metadata rewrite on deploy
@@ -163,7 +151,7 @@ elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $CI_BRANCH == 'develop' || $CI_BRANCH 
 
       if [[ $PRE_DEST == 'true' ]]; then
         echo -e "\n${GREEN}* Pre-deploy: Push destructive changes${RESTORE}\n"
-        sfdx force:mdapi:deploy ${VALI_FLAG} --deploydir=destructive/unpackaged --ignoreerrors --ignorewarnings --wait=-1 -u ciorg
+        sfdx force:mdapi:deploy --deploydir=destructive/unpackaged --ignoreerrors --ignorewarnings --wait=-1 -u ciorg
       fi
     else
       echo -e "No destructive changes found.\n"
@@ -175,19 +163,15 @@ elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $CI_BRANCH == 'develop' || $CI_BRANCH 
   #####
   # Run main deployment
   #####
-  if [[ $REAL_DEPLOY == 'true' ]]; then
-    echo -e "${GREEN}*** ${RED}Real deploy ${GREEN}***${RESTORE}\n"
-  else
-    echo -e "\n${GREEN}* Simulation deploy${RESTORE}\n"
-  fi
-  sfdx force:source:deploy ${VALI_FLAG} ${TEST_CODE} -p force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
+  echo -e "${GREEN}*** ${RED}Real deploy ${GREEN}***${RESTORE}\n"
+  sfdx force:source:deploy --testlevel=RunLocalTests --sourcepath=force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
   #pause
 
 
   # (post-deploy) destructive changes
   if [[ -f destructive/unpackaged/destructiveChanges.xml && $PRE_DEST == 'false' ]]; then
     echo -e "\n${GREEN}* Post-deploy: Push destructive changes${RESTORE}\n"
-    sfdx force:mdapi:deploy ${VALI_FLAG} --deploydir=destructive/unpackaged --ignoreerrors --ignorewarnings --wait=-1 -u ciorg
+    sfdx force:mdapi:deploy --deploydir=destructive/unpackaged --ignoreerrors --ignorewarnings --wait=-1 -u ciorg
   fi
 
 
