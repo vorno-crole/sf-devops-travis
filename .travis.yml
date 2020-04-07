@@ -1,7 +1,6 @@
 sudo: true
 os: trusty
 cache: bundler
-language: node_js
 node_js:
   - "8"
 
