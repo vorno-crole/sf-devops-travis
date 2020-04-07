@@ -80,6 +80,7 @@ echo "Compare Branch: $CI_CMP_BRANCH"
 echo "Pull Request: $CI_PULL_REQUEST"
 if [[ $CI_PULL_REQUEST != "false" ]]; then
   echo "PR Branch: $CI_PULL_REQUEST_BRANCH"
+  CI_CMP_BRANCH="${CI_PULL_REQUEST_BRANCH}"
 fi
 
 if [[ $TEST_CODE == "" ]]; then
@@ -107,14 +108,27 @@ fi
 
 echo ""
 
-
-if [[ $# -eq 0 ]]; then
-  usage
-  exit 0
+if [[ $AUTO_CI == "false" ]]; then
+  exit
 fi
 
 
-if [[ $CI_EVENT_TYPE == 'push' ]] && [[ $CI_BRANCH == 'develop' || $CI_BRANCH == 'validation' || $CI_BRANCH == 'release' || $CI_BRANCH == 'master' ]]; then
+if [[ $CI_EVENT_TYPE == 'pull_request' ]]
+  # get url file and auth
+  CI_ORG_FILE="ci/devops1-url.txt"
+  if [[ ! -f ${CI_ORG_FILE} ]]; then
+    echo -e "Error: Test URL file not found.\n"
+    exit 1;
+  fi
+
+  sfdx force:auth:sfdxurl:store -f ${CI_ORG_FILE} -a ciorg
+  sfdx force:org:display -u ciorg
+
+  # run sim deploy
+  sfdx force:source:deploy --checkonly -l RunLocalTests -p force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
+
+
+elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $CI_BRANCH == 'develop' || $CI_BRANCH == 'validation' || $CI_BRANCH == 'release' || $CI_BRANCH == 'master' ]]; then
 
   echo -e "${GREEN}*** ${WHITE}Push into $CI_BRANCH - running deploy\n"
   echo -e "\n${GREEN}* ${WHITE}Authenticate org\n"
