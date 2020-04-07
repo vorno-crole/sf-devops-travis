@@ -69,7 +69,7 @@ export -f usage
 echo -e "\n${GREEN}*** ${WHITE}Deploy to Salesforce script v${VERSION}\n${GREEN}* ${WHITE}by vc@vaughancrole.com${RESTORE}\n"
 
 if [[ $AUTO_CI != "false" ]]; then
-  echo -e "* Running in CI Automatic mode.\n"
+  echo -e "${GREEN}* Running in CI Automatic mode.${RESTORE}\n"
 fi
 echo "Event: $CI_EVENT_TYPE"
 echo "Branch: $CI_BRANCH"
