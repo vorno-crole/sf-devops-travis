@@ -1,0 +1,16 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "AccountRef1"
+            },
+            "Name": "Vorno Industries",
+            "AccountNumber": "1",
+            "Industry": "Technology",
+            "Ownership": "Private",
+            "Rating": "Hot",
+            "Type": "Technology Partner"
+        }
+    ]
+}

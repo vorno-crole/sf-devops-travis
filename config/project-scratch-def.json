@@ -1,0 +1,22 @@
+{
+	"orgName": "Vorno Industries",
+	"edition": "Developer",
+	"features": ["PersonAccounts", "ContactsToMultipleAccounts", "DefaultWorkflowUser"],
+	"settings" : {
+		"entitlement": {
+			"enableEntitlements": false
+		},
+		"pathAssistantSettings": {
+			"pathAssistantEnabled": true
+		},
+		"lightningExperienceSettings": {
+			"enableS1DesktopEnabled": true
+		},
+		"communitiesSettings": {
+			"enableNetworksEnabled": false
+		}
+	},
+	"hasSampleData": false,
+	"language": "en_US",
+	"country": "AU"
+}
