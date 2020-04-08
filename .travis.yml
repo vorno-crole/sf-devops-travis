@@ -10,7 +10,6 @@ branches:
     - release
     - validation
     - develop
-    - feature/travis-ci
 
 env:
 - URL=https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
@@ -29,6 +28,5 @@ before_install:
 - sfdx plugins --core
 - git clone https://github.com/vorno-crole/sf-packager.git sf-packager
 - npm link sf-packager
-- chmod +x ci/deploy.sh
 
 script: ci/deploy.sh --automatic
