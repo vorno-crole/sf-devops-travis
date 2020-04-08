@@ -68,7 +68,7 @@ export -f usage
   {
     ### Get url key and authenticate
     CI_ORG_FILE="ci/auth-url.txt"
-    if [ ${URL_KEY} == "" ]; then
+    if [ $URL_KEY == "" ]; then
       echo -e "Error: URL Key not set.\n"
       exit 1;
     fi
