@@ -145,9 +145,9 @@ if [[ $DESTRUCT == "true" ]]; then
   echo "Destructive changes check enabled."
 
   if [[ $PRE_DEST == "true" ]]; then
-    echo -e "Any destructive changes will run ${GREEN}PRE${WHITE} deployment."
+    echo -e "Any destructive changes will run ${GREEN}PRE${RESTORE} deployment."
   else
-    echo -e "Any destructive changes will run ${GREEN}POST${WHITE} deployment."
+    echo -e "Any destructive changes will run ${GREEN}POST${RESTORE} deployment."
   fi
 else
   echo "Destructive changes check disabled."
@@ -162,6 +162,10 @@ fi
 if [[ $CI_BRANCH == 'develop' || $CI_BRANCH == 'validation' || $CI_BRANCH == 'release' || $CI_BRANCH == 'master' ]]; then
   MAIN_BRANCH="true"
 fi
+
+echo -e "CI_EVENT_TYPE $CI_EVENT_TYPE"
+echo -e "MAIN_BRANCH $MAIN_BRANCH"
+#pause
 
 
 if [[ ($CI_EVENT_TYPE == 'pull_request' && $MAIN_BRANCH == 'true') || ($CI_EVENT_TYPE == 'push' && $MAIN_BRANCH == 'false') ]]; then
