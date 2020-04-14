@@ -164,9 +164,14 @@ if [[ $CI_BRANCH == 'develop' || $CI_BRANCH == 'validation' || $CI_BRANCH == 're
 fi
 
 
-if [[ $CI_EVENT_TYPE == 'pull_request' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
+if [[ ($CI_EVENT_TYPE == 'pull_request' ]] && [[ $MAIN_BRANCH == 'true') || ($CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'false') ]]; then
 
-  echo -e "${GREEN}*** ${WHITE}PR into $CI_BRANCH - running simulation test${RESTORE}\n"
+  EVENT='Push'
+  if [[ $CI_EVENT_TYPE == 'pull_request' ]]; then 
+    EVENT='PR'
+  fi
+
+  echo -e "${GREEN}*** ${WHITE}${EVENT} into $CI_BRANCH - running simulation test${RESTORE}\n"
 
   ### Get url key and authenticate
   authUrlKey
