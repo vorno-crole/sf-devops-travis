@@ -17,7 +17,7 @@ echo -e "${GREEN}* ${RESTORE}Creating scratch org: ${WHITE}$1${RESTORE}."
 
 cd "$(dirname "$BASH_SOURCE")"
 sfdx force:org:create -f project-scratch-def.json -d 30 -a $1 -s
-sfdx force:org:display
+#sfdx force:org:display
 #sfdx force:mdapi:deploy -d packages -w -1
 sfdx force:source:push
 
