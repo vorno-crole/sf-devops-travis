@@ -1,14 +1,17 @@
 # sf-devops-travis
 SF Devops with Travis CI
 
-**Build status**
+**Build Status**
 
 master: 
 [![Build Status](https://api.travis-ci.org/vorno-crole/sf-devops-travis.svg?branch=master)](https://api.travis-ci.org/vorno-crole/sf-devops-travis)
+
 release: 
 [![Build Status](https://api.travis-ci.org/vorno-crole/sf-devops-travis.svg?branch=release)](https://api.travis-ci.org/vorno-crole/sf-devops-travis)
+
 validation: 
 [![Build Status](https://api.travis-ci.org/vorno-crole/sf-devops-travis.svg?branch=validation)](https://api.travis-ci.org/vorno-crole/sf-devops-travis)
+
 develop: 
 [![Build Status](https://api.travis-ci.org/vorno-crole/sf-devops-travis.svg?branch=develop)](https://api.travis-ci.org/vorno-crole/sf-devops-travis)
 
