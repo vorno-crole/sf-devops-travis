@@ -146,7 +146,7 @@ if [[ $CI_EVENT_TYPE == 'pull_request' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
   authUrlKey
 
   # Run Dynamic metadata rewrite on deploy
-  #targets/dynamic-metadata.sh --set ${CI_BRANCH} # TODO fix
+  targets/dynamic-metadata.sh --set ${CI_BRANCH}
 
   #####
   # Run simulation deployment
@@ -154,7 +154,7 @@ if [[ $CI_EVENT_TYPE == 'pull_request' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
   sfdx force:source:deploy --checkonly --testlevel=RunLocalTests --sourcepath=force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
 
   # Restore dynamic metadata rewrite
-  #targets/dynamic-metadata.sh --restore # TODO fix
+  targets/dynamic-metadata.sh --restore
 
 elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
 
@@ -164,7 +164,7 @@ elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
   authUrlKey
 
   # Run Dynamic metadata rewrite on deploy
-  #targets/dynamic-metadata.sh --set ${CI_BRANCH} # TODO fix
+  targets/dynamic-metadata.sh --set ${CI_BRANCH}
 
 
   ### Destructive changes
@@ -195,7 +195,7 @@ elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
 
 
   # Restore dynamic metadata rewrite
-  #targets/dynamic-metadata.sh --restore # TODO fix
+  targets/dynamic-metadata.sh --restore
 
 
 else
