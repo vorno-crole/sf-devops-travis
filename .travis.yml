@@ -26,7 +26,6 @@ before_install:
 - export PATH=./sfdx/$(pwd):$PATH
 - sfdx --version
 - sfdx plugins --core
-- git clone https://github.com/vorno-crole/sf-packager.git sf-packager
 - npm link sf-packager
 
 script: ci/deploy.sh --automatic
