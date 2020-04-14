@@ -172,6 +172,7 @@ if [[ $CI_EVENT_TYPE == 'pull_request' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
   #####
   sfdx force:source:deploy --checkonly --testlevel=RunLocalTests --sourcepath=force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
 
+
 elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
 
   echo -e "${GREEN}*** ${WHITE}Push into $CI_BRANCH - running deploy${RESTORE}\n"
@@ -201,7 +202,6 @@ elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
   #####
   echo -e "${GREEN}*** ${RED}Real deploy ${GREEN}***${RESTORE}\n"
   sfdx force:source:deploy --testlevel=RunLocalTests --sourcepath=force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
-  #pause
 
 
   # Post-deploy push destructive changes
