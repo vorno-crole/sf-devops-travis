@@ -34,6 +34,7 @@ export -f usage
   AUTO_CI="false"
   MAIN_BRANCH="false"
   REWRITE="false"
+  AUTO_SCRATCH_ORG="true"
 
   while [ $# -gt 0 ] ; do
     case $1 in
@@ -69,14 +70,21 @@ export -f usage
     ### Get url key and authenticate
     CI_ORG_FILE="ci/auth-url.txt"
     if [[ $URL_KEY == "" ]]; then
-      echo -e "Error: URL Key not set.\n"
-      exit 1;
-    fi
-    echo "${URL_KEY}" > ${CI_ORG_FILE}
+      if [[ $AUTO_SCRATCH_ORG != "true" && $CI_EVENT_TYPE != 'pull_request' ]]; then
+        echo -e "Error: URL Key not set.\n"
+        exit 1;
+      else
+        # create new scratch org, push and test
+        # Only for PR and where AUTO_SCRATCH_ORG is true.
+        config/create-scr.sh ciorg
+      fi
+    else
+      echo "${URL_KEY}" > ${CI_ORG_FILE}
 
-    sfdx force:auth:sfdxurl:store -f ${CI_ORG_FILE} -a ciorg
-    #sfdx force:org:display -u ciorg
-    rm ${CI_ORG_FILE}
+      sfdx force:auth:sfdxurl:store -f ${CI_ORG_FILE} -a ciorg
+      #sfdx force:org:display -u ciorg
+      rm ${CI_ORG_FILE}
+    fi
   }
   export -f authUrlKey
 
