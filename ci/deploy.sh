@@ -2,7 +2,7 @@
 SECONDS=0
 
 # Set up env vars here
-  set -e
+  #set -e
   GREEN="\033[32;1m"
   WHITE="\033[97;1m"
   RED="\033[91;1m"
@@ -99,9 +99,18 @@ export -f usage
 
   function finish
   {
+    EXIT_CODE=$?
     if [[ $REWRITE == "true" ]]; then
       targets/dynamic-metadata.sh --restore
     fi
+
+    if [[ $EXIT_CODE > 0 ]]; then
+      echo -e "${RED}*** Error. Stopping script.${RESTORE}"
+    fi
+
+    echo -e "${GREEN}* ${WHITE}Deploy Script End."
+    echo -e "Time taken: ${SECONDS} seconds.\n"
+    exit EXIT_CODE
   }
   trap finish EXIT
 # end functions
@@ -213,7 +222,3 @@ else
   echo -e "${GREEN}*** ${WHITE}No action required.\n"
 
 fi
-
-echo -e "${GREEN}* ${WHITE}Deploy Script End."
-echo -e "Time taken: ${SECONDS} seconds.\n"
-exit 0;
