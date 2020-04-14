@@ -164,7 +164,7 @@ if [[ $CI_BRANCH == 'develop' || $CI_BRANCH == 'validation' || $CI_BRANCH == 're
 fi
 
 
-if [[ ($CI_EVENT_TYPE == 'pull_request' ]] && [[ $MAIN_BRANCH == 'true') || ($CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'false') ]]; then
+if [[ ($CI_EVENT_TYPE == 'pull_request' && $MAIN_BRANCH == 'true') || ($CI_EVENT_TYPE == 'push' && $MAIN_BRANCH == 'false') ]]; then
 
   EVENT='Push'
   if [[ $CI_EVENT_TYPE == 'pull_request' ]]; then 
