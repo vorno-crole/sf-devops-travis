@@ -2,7 +2,6 @@
 SECONDS=0
 
 # Set up env vars here
-  set -e
   GREEN="\033[32;1m"
   WHITE="\033[97;1m"
   RED="\033[91;1m"
@@ -99,9 +98,19 @@ export -f usage
 
   function finish
   {
+    EXIT_CODE=$?
     if [[ $REWRITE == "true" ]]; then
+      # Restore dynamic metadata rewrite
       targets/dynamic-metadata.sh --restore
     fi
+
+    if [[ $EXIT_CODE > 0 ]]; then
+      echo -e "${RED}*** Error. Stopping script.${RESTORE}"
+    fi
+
+    echo -e "${GREEN}* ${WHITE}Deploy Script End."
+    echo -e "Time taken: ${SECONDS} seconds.\n"
+    exit $EXIT_CODE
   }
   trap finish EXIT
 # end functions
@@ -163,8 +172,6 @@ if [[ $CI_EVENT_TYPE == 'pull_request' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
   #####
   sfdx force:source:deploy --checkonly --testlevel=RunLocalTests --sourcepath=force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
 
-  # Restore dynamic metadata rewrite
-  #targets/dynamic-metadata.sh --restore
 
 elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
 
@@ -195,7 +202,6 @@ elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
   #####
   echo -e "${GREEN}*** ${RED}Real deploy ${GREEN}***${RESTORE}\n"
   sfdx force:source:deploy --testlevel=RunLocalTests --sourcepath=force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
-  #pause
 
 
   # Post-deploy push destructive changes
@@ -204,16 +210,7 @@ elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
     sfdx force:mdapi:deploy --deploydir=destructive/unpackaged --ignoreerrors --ignorewarnings --wait=-1 -u ciorg
   fi
 
-
-  # Restore dynamic metadata rewrite
-  #targets/dynamic-metadata.sh --restore
-
-
 else
   echo -e "${GREEN}*** ${WHITE}No action required.\n"
 
 fi
-
-echo -e "${GREEN}* ${WHITE}Deploy Script End."
-echo -e "Time taken: ${SECONDS} seconds.\n"
-exit 0;
