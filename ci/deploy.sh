@@ -34,6 +34,7 @@ export -f usage
   DEPLOY_WAIT="33"
   AUTO_CI="false"
   MAIN_BRANCH="false"
+  REWRITE="false"
 
   while [ $# -gt 0 ] ; do
     case $1 in
@@ -95,6 +96,14 @@ export -f usage
     fi
   }
   export -f checkDestructive
+
+  function finish
+  {
+    if [[ $REWRITE == "true" ]]; then
+      targets/dynamic-metadata.sh --restore
+    fi
+  }
+  trap finish EXIT
 # end functions
 
 echo -e "\n${GREEN}*** ${WHITE}Deploy to Salesforce script v${VERSION}\n${GREEN}* ${WHITE}by vc@vaughancrole.com${RESTORE}\n"
@@ -146,6 +155,7 @@ if [[ $CI_EVENT_TYPE == 'pull_request' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
   authUrlKey
 
   # Run Dynamic metadata rewrite on deploy
+  REWRITE="true"
   targets/dynamic-metadata.sh --set ${CI_BRANCH}
 
   #####
@@ -154,7 +164,7 @@ if [[ $CI_EVENT_TYPE == 'pull_request' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
   sfdx force:source:deploy --checkonly --testlevel=RunLocalTests --sourcepath=force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
 
   # Restore dynamic metadata rewrite
-  targets/dynamic-metadata.sh --restore
+  #targets/dynamic-metadata.sh --restore
 
 elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
 
@@ -164,6 +174,7 @@ elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
   authUrlKey
 
   # Run Dynamic metadata rewrite on deploy
+  REWRITE="true"
   targets/dynamic-metadata.sh --set ${CI_BRANCH}
 
 
@@ -195,7 +206,7 @@ elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
 
 
   # Restore dynamic metadata rewrite
-  targets/dynamic-metadata.sh --restore
+  #targets/dynamic-metadata.sh --restore
 
 
 else
