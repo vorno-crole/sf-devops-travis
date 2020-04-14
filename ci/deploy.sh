@@ -110,7 +110,7 @@ export -f usage
 
     echo -e "${GREEN}* ${WHITE}Deploy Script End."
     echo -e "Time taken: ${SECONDS} seconds.\n"
-    exit EXIT_CODE
+    exit $EXIT_CODE
   }
   trap finish EXIT
 # end functions
