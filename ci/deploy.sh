@@ -2,7 +2,6 @@
 SECONDS=0
 
 # Set up env vars here
-  #set -e
   GREEN="\033[32;1m"
   WHITE="\033[97;1m"
   RED="\033[91;1m"
