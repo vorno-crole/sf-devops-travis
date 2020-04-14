@@ -1,0 +1,3 @@
+[submodule "sf-packager"]
+	path = sf-packager
+	url = https://github.com/vorno-crole/sf-packager
