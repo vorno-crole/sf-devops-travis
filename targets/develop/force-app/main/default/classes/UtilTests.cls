@@ -1,7 +1,7 @@
 @isTest
 public class UtilTests
 {
-	@testvisible private static Boolean crashTest = true;
+	@testvisible private static Boolean crashTest = false;
 
 	public static testMethod void test1()
 	{
