@@ -2,7 +2,6 @@
 SECONDS=0
 
 # Set up env vars here
-  #set -e
   GREEN="\033[32;1m"
   WHITE="\033[97;1m"
   RED="\033[91;1m"
@@ -101,6 +100,7 @@ export -f usage
   {
     EXIT_CODE=$?
     if [[ $REWRITE == "true" ]]; then
+      # Restore dynamic metadata rewrite
       targets/dynamic-metadata.sh --restore
     fi
 
@@ -172,9 +172,6 @@ if [[ $CI_EVENT_TYPE == 'pull_request' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
   #####
   sfdx force:source:deploy --checkonly --testlevel=RunLocalTests --sourcepath=force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
 
-  # Restore dynamic metadata rewrite
-  #targets/dynamic-metadata.sh --restore
-
 elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
 
   echo -e "${GREEN}*** ${WHITE}Push into $CI_BRANCH - running deploy${RESTORE}\n"
@@ -212,11 +209,6 @@ elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
     echo -e "\n${GREEN}* Post-deploy: Push destructive changes${RESTORE}\n"
     sfdx force:mdapi:deploy --deploydir=destructive/unpackaged --ignoreerrors --ignorewarnings --wait=-1 -u ciorg
   fi
-
-
-  # Restore dynamic metadata rewrite
-  #targets/dynamic-metadata.sh --restore
-
 
 else
   echo -e "${GREEN}*** ${WHITE}No action required.\n"
