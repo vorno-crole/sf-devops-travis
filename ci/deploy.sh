@@ -165,7 +165,6 @@ if [[ $AUTO_CI == "false" ]]; then
   exit
 fi
 
-
 ### Set your main branches here.
 # This means a branch with a mapped environment that you will auto-deploy into.
 # You will need a URL_KEY set in Travis for each of these branches.
