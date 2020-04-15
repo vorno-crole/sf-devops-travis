@@ -13,6 +13,10 @@ SECONDS=0
   CI_CMP_BRANCH="${CI_BRANCH}^"
   CI_PULL_REQUEST="${TRAVIS_PULL_REQUEST}"
   CI_PULL_REQUEST_BRANCH="${TRAVIS_PULL_REQUEST_BRANCH}"
+  EVENT='Push'
+  if [[ $CI_EVENT_TYPE == 'pull_request' ]]; then
+    EVENT='PR'
+  fi
 # end set up env vars
 
 usage()
@@ -161,17 +165,17 @@ if [[ $AUTO_CI == "false" ]]; then
   exit
 fi
 
+
+### Set your main branches here.
+# This means a branch with a mapped environment that you will auto-deploy into.
+# You will need a URL_KEY set in Travis for each of these branches.
+# Don't include feature branches. That would be silly.
 if [[ $CI_BRANCH == 'develop' || $CI_BRANCH == 'validation' || $CI_BRANCH == 'release' || $CI_BRANCH == 'master' ]]; then
   MAIN_BRANCH="true"
 fi
 
 
 if [[ ($CI_EVENT_TYPE == 'pull_request' && $MAIN_BRANCH == 'true') || ($CI_EVENT_TYPE == 'push' && $MAIN_BRANCH == 'false') ]]; then
-
-  EVENT='Push'
-  if [[ $CI_EVENT_TYPE == 'pull_request' ]]; then
-    EVENT='PR'
-  fi
 
   echo -e "${GREEN}*** ${WHITE}${EVENT} into $CI_BRANCH - running simulation test${RESTORE}\n"
 
@@ -196,7 +200,7 @@ if [[ ($CI_EVENT_TYPE == 'pull_request' && $MAIN_BRANCH == 'true') || ($CI_EVENT
 
 elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
 
-  echo -e "${GREEN}*** ${WHITE}Push into $CI_BRANCH - running deploy${RESTORE}\n"
+  echo -e "${GREEN}*** ${WHITE}${EVENT} into $CI_BRANCH - running deploy${RESTORE}\n"
 
   ### Get url key and authenticate
   authUrlKey
