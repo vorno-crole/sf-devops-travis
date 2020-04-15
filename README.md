@@ -16,4 +16,3 @@ develop|[![Build Status](https://api.travis-ci.org/vorno-crole/sf-devops-travis.
 - Travis Config - use DEV_HUB_KEY env var for dev hub force:// URL
 - Lock your branches
 - deploy.sh - ensure main branches are set (currently master, release, validation, develop.)
-
