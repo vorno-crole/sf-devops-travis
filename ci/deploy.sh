@@ -13,6 +13,10 @@ SECONDS=0
   CI_CMP_BRANCH="${CI_BRANCH}^"
   CI_PULL_REQUEST="${TRAVIS_PULL_REQUEST}"
   CI_PULL_REQUEST_BRANCH="${TRAVIS_PULL_REQUEST_BRANCH}"
+  EVENT='Push'
+  if [[ $CI_EVENT_TYPE == 'pull_request' ]]; then
+    EVENT='PR'
+  fi
 # end set up env vars
 
 usage()
@@ -34,11 +38,13 @@ export -f usage
   AUTO_CI="false"
   MAIN_BRANCH="false"
   REWRITE="false"
+  AUTO_SCRATCH_ORG="true"
+  SCRATCH_ORG_MADE="false"
 
   while [ $# -gt 0 ] ; do
     case $1 in
       -t | --target) CI_CMP_BRANCH="$2"
-                     CI_BRANCH="$2" 
+                     CI_BRANCH="$2"
                      shift;;
       -d | --real-deploy) REAL_DEPLOY="true" ;;
       --skip-destruct-check) DESTRUCT="false" ;;
@@ -69,14 +75,22 @@ export -f usage
     ### Get url key and authenticate
     CI_ORG_FILE="ci/auth-url.txt"
     if [[ $URL_KEY == "" ]]; then
-      echo -e "Error: URL Key not set.\n"
-      exit 1;
-    fi
-    echo "${URL_KEY}" > ${CI_ORG_FILE}
+      if [[ $AUTO_SCRATCH_ORG != "true" && $CI_EVENT_TYPE != 'pull_request' ]]; then
+        echo -e "Error: URL Key not set.\n"
+        exit 1;
+      else
+        # create new scratch org, push and test
+        # Only for PR and where AUTO_SCRATCH_ORG is true.
+        config/create-scr.sh ciorg
+        SCRATCH_ORG_MADE="true"
+      fi
+    else
+      echo "${URL_KEY}" > ${CI_ORG_FILE}
 
-    sfdx force:auth:sfdxurl:store -f ${CI_ORG_FILE} -a ciorg
-    #sfdx force:org:display -u ciorg
-    rm ${CI_ORG_FILE}
+      sfdx force:auth:sfdxurl:store -f ${CI_ORG_FILE} -a ciorg
+      #sfdx force:org:display -u ciorg
+      rm ${CI_ORG_FILE}
+    fi
   }
   export -f authUrlKey
 
@@ -137,9 +151,9 @@ if [[ $DESTRUCT == "true" ]]; then
   echo "Destructive changes check enabled."
 
   if [[ $PRE_DEST == "true" ]]; then
-    echo -e "Any destructive changes will run ${GREEN}PRE${WHITE} deployment."
+    echo -e "Any destructive changes will run ${GREEN}PRE${RESTORE} deployment."
   else
-    echo -e "Any destructive changes will run ${GREEN}POST${WHITE} deployment."
+    echo -e "Any destructive changes will run ${GREEN}POST${RESTORE} deployment."
   fi
 else
   echo "Destructive changes check disabled."
@@ -151,14 +165,18 @@ if [[ $AUTO_CI == "false" ]]; then
   exit
 fi
 
+### Set your main branches here.
+# This means a branch with a mapped environment that you will auto-deploy into.
+# You will need a URL_KEY set in Travis for each of these branches.
+# Don't include feature branches. That would be silly.
 if [[ $CI_BRANCH == 'develop' || $CI_BRANCH == 'validation' || $CI_BRANCH == 'release' || $CI_BRANCH == 'master' ]]; then
   MAIN_BRANCH="true"
 fi
 
 
-if [[ $CI_EVENT_TYPE == 'pull_request' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
+if [[ ($CI_EVENT_TYPE == 'pull_request' && $MAIN_BRANCH == 'true') || ($CI_EVENT_TYPE == 'push' && $MAIN_BRANCH == 'false') ]]; then
 
-  echo -e "${GREEN}*** ${WHITE}PR into $CI_BRANCH - running simulation test${RESTORE}\n"
+  echo -e "${GREEN}*** ${WHITE}${EVENT} into $CI_BRANCH - running simulation test${RESTORE}\n"
 
   ### Get url key and authenticate
   authUrlKey
@@ -173,9 +191,15 @@ if [[ $CI_EVENT_TYPE == 'pull_request' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
   sfdx force:source:deploy --checkonly --testlevel=RunLocalTests --sourcepath=force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
 
 
+  # Delete scratch org (if required)
+  if [[ $SCRATCH_ORG_MADE == 'true' ]]; then
+    sfdx force:org:delete -u ciorg -p
+  fi
+
+
 elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
 
-  echo -e "${GREEN}*** ${WHITE}Push into $CI_BRANCH - running deploy${RESTORE}\n"
+  echo -e "${GREEN}*** ${WHITE}${EVENT} into $CI_BRANCH - running deploy${RESTORE}\n"
 
   ### Get url key and authenticate
   authUrlKey
@@ -212,5 +236,4 @@ elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
 
 else
   echo -e "${GREEN}*** ${WHITE}No action required.\n"
-
 fi
