@@ -163,10 +163,6 @@ if [[ $CI_BRANCH == 'develop' || $CI_BRANCH == 'validation' || $CI_BRANCH == 're
   MAIN_BRANCH="true"
 fi
 
-echo -e "CI_EVENT_TYPE $CI_EVENT_TYPE"
-echo -e "MAIN_BRANCH $MAIN_BRANCH"
-#pause
-
 
 if [[ ($CI_EVENT_TYPE == 'pull_request' && $MAIN_BRANCH == 'true') || ($CI_EVENT_TYPE == 'push' && $MAIN_BRANCH == 'false') ]]; then
 
