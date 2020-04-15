@@ -39,7 +39,7 @@ export -f usage
   while [ $# -gt 0 ] ; do
     case $1 in
       -t | --target) CI_CMP_BRANCH="$2"
-                     CI_BRANCH="$2" 
+                     CI_BRANCH="$2"
                      shift;;
       -d | --real-deploy) REAL_DEPLOY="true" ;;
       --skip-destruct-check) DESTRUCT="false" ;;
@@ -171,7 +171,7 @@ echo -e "MAIN_BRANCH $MAIN_BRANCH"
 if [[ ($CI_EVENT_TYPE == 'pull_request' && $MAIN_BRANCH == 'true') || ($CI_EVENT_TYPE == 'push' && $MAIN_BRANCH == 'false') ]]; then
 
   EVENT='Push'
-  if [[ $CI_EVENT_TYPE == 'pull_request' ]]; then 
+  if [[ $CI_EVENT_TYPE == 'pull_request' ]]; then
     EVENT='PR'
   fi
 
