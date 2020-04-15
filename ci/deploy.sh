@@ -35,6 +35,7 @@ export -f usage
   MAIN_BRANCH="false"
   REWRITE="false"
   AUTO_SCRATCH_ORG="true"
+  SCRATCH_ORG_MADE="false"
 
   while [ $# -gt 0 ] ; do
     case $1 in
@@ -77,6 +78,7 @@ export -f usage
         # create new scratch org, push and test
         # Only for PR and where AUTO_SCRATCH_ORG is true.
         config/create-scr.sh ciorg
+        SCRATCH_ORG_MADE="true"
       fi
     else
       echo "${URL_KEY}" > ${CI_ORG_FILE}
@@ -186,6 +188,12 @@ if [[ ($CI_EVENT_TYPE == 'pull_request' && $MAIN_BRANCH == 'true') || ($CI_EVENT
   sfdx force:source:deploy --checkonly --testlevel=RunLocalTests --sourcepath=force-app/main/default --wait=${DEPLOY_WAIT} -u ciorg
 
 
+  # Delete scratch org (if required)
+  if [[ $SCRATCH_ORG_MADE == 'true' ]]; then
+    sfdx force:org:delete -u ciorg -p
+  fi
+
+
 elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
 
   echo -e "${GREEN}*** ${WHITE}Push into $CI_BRANCH - running deploy${RESTORE}\n"
@@ -225,5 +233,4 @@ elif [[ $CI_EVENT_TYPE == 'push' ]] && [[ $MAIN_BRANCH == 'true' ]]; then
 
 else
   echo -e "${GREEN}*** ${WHITE}No action required.\n"
-
 fi
