@@ -18,7 +18,6 @@ DEV_HUB_NAME="$(sfdx force:config:get defaultdevhubusername --json | egrep value
 if [[ $DEV_HUB_NAME == "" ]]; then
 
     # No dev hub. Auto create?
-
     if [[ $DEV_HUB_KEY == "" ]]; then
         # No dev hub url key. Error.
         echo -e "Error: No Dev hub."
@@ -31,17 +30,21 @@ if [[ $DEV_HUB_NAME == "" ]]; then
     rm ${DEVHUB_ORG_FILE}
 fi
 
-
 echo -e "${GREEN}* ${RESTORE}Creating scratch org: ${WHITE}$1${RESTORE}."
-
 cd "$(dirname "$BASH_SOURCE")"
+
+# Create scratch
 sfdx force:org:create -f project-scratch-def.json -d 30 -a $1 -s
 #sfdx force:org:display
+
+# Deploy managed packages
 #sfdx force:mdapi:deploy -d packages -w -1
+
+# Push meta
 sfdx force:source:push
 
 # Load data
-#../data/myObject/import.sh -t $1
+../data/accounts/import.sh -t $1
 
 #sfdx force:org:open
 echo -e "\nTime taken: ${SECONDS} seconds.\n"
