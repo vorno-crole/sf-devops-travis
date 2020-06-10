@@ -1,5 +1,5 @@
 # sf-devops-travis
-SF Devops with Travis CI
+Salesforce Devops with Travis CI
 
 
 Branch|Build Status
